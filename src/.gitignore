@@ -1,0 +1,6 @@
+__pycache__
+.env
+app.log
+matches.txt
+credentials.json
+token.json

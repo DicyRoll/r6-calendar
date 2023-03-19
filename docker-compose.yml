@@ -1,0 +1,7 @@
+services:
+  python:
+    build: .
+    container_name: r6-calendar
+    volumes:
+      - ./src:/root/r6-calendar
+    tty: true
