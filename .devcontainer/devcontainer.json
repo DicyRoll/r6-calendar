@@ -1,0 +1,17 @@
+{
+    "name": "r6-calendar",
+    "build": {
+        "dockerfile": "../Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.isort",
+                "visualstudioexptteam.vscodeintellicode",
+                "tal7aouy.indent-colorizer",
+                "ms-python.black-formatter"
+            ]
+        }
+    }
+}
