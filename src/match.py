@@ -16,7 +16,9 @@ class Match:
         return f"{self.id} {self.competition} {self.teams[0]} {self.teams[1]}"
 
     def __get_id_hash(self) -> str:
-        match_str = str(self.competition) + str(self.teams)
+        match_str = (
+            str(self.competition) + str(self.teams) + self.start_time.isoformat()
+        )
         hash = hashlib.sha256(match_str.encode())
         return hash.hexdigest()
 
