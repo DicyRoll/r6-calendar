@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 
 import requests
+from requests import JSONDecodeError
 import dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -72,21 +73,27 @@ def main():
                 f"https://www.ubisoft.com/_next/data/JjLqCXwsalIA9VRj0ZW6W/en-us/esports/rainbow-six/siege/calendar/{year}-{month:02d}.json"
             )
 
-            data = response.json()["pageProps"]["page"]
+            try:
+                data = response.json()["pageProps"]["page"]
 
-            for match_element in data["matches"]:
-                match = Match(
-                    match_element["competition"]["name"],
-                    (match_element["team1"]["name"], match_element["team2"]["name"]),
-                    match_element["timestamp"],
-                )
+                for match_element in data["matches"]:
+                    match = Match(
+                        match_element["competition"]["name"],
+                        (
+                            match_element["team1"]["name"],
+                            match_element["team2"]["name"],
+                        ),
+                        match_element["timestamp"],
+                    )
 
-                if match.id not in match_file_content:
-                    if match.validate_match():
-                        matches_to_add.append(match)
-                        match_file.write(match.id + "\n")
-                    else:
-                        logging.warning(f"Match {match} is invalid")
+                    if match.id not in match_file_content:
+                        if match.validate_match():
+                            matches_to_add.append(match)
+                            match_file.write(match.id + "\n")
+                        else:
+                            logging.warning(f"Match {match} is invalid")
+            except JSONDecodeError:
+                logging.warning(f"Response for {year}-{month} does not have valid JSON")
 
     match_file.close()
     logging.info("End of fetch process")
