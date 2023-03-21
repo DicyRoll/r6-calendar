@@ -1,7 +1,7 @@
 {
     "name": "r6-calendar",
     "build": {
-        "dockerfile": "../Dockerfile"
+        "dockerfile": "../Dockerfile.development"
     },
     "customizations": {
         "vscode": {
