@@ -5,11 +5,9 @@ from datetime import datetime
 
 import dotenv
 import requests
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import Resource, build
 from googleapiclient.errors import HttpError
+from oauth2client.service_account import ServiceAccountCredentials
 from requests import JSONDecodeError
 
 from match import Match
@@ -20,43 +18,26 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 dotenv.load_dotenv()
 
 SCOPE = [os.environ.get("SCOPE")]
-AUTH_PORT = int(os.environ.get("AUTH_PORT"))
 CALENDAR_ID = os.environ.get("CALENDAR_ID")
-CALENDAR_NAME = os.environ.get("CALENDAR_NAME")
+CREDENTIALS_PATH = os.environ.get("CREDENTIALS_PATH")
 
 
-def get_credentials() -> Credentials:
-    creds = None
+def get_google_service() -> Resource:
+    if os.path.exists(CREDENTIALS_PATH):
+        creds = ServiceAccountCredentials.from_json_keyfile_name(
+            CREDENTIALS_PATH, SCOPE
+        )
+    else:
+        err_msg = f"Credentials file {CREDENTIALS_PATH} does not exist"
+        logging.error(err_msg)
+        raise FileNotFoundError(err_msg)
 
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPE)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPE)
-            creds = flow.run_local_server(port=AUTH_PORT)
-
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
-
-    return creds
-
-
-def create_r6_calendar(service: Resource) -> str:
-    default_calendar = {"summary": CALENDAR_NAME, "timeZone": "Europe/Rome"}
-    new_calendar = service.calendars().insert(body=default_calendar).execute()
-
-    dotenv.set_key(dotenv.find_dotenv(), "CALENDAR_ID", new_calendar["id"])
-
-    logging.info(f"Created calendar {new_calendar['id']} - {new_calendar['summary']}")
-    return new_calendar["id"]
+    return build("calendar", "v3", credentials=creds)
 
 
 def main():
     logging.basicConfig(
-        filename="/logs/app.log",
+        filename="logs/app.log",
         format="[%(asctime)s]\n%(levelname)s: %(message)s",
         level=logging.INFO,
     )
@@ -80,9 +61,9 @@ def main():
         '(?<="buildId":")([a-zA-Z0-9_]+)(?=")', calendar_page.text
     ).pop()
 
-    for year in range(2023, datetime.now().year + 1):  # 2020
+    for year in range(2020, datetime.now().year + 1):
         logging.info(f"Fetching year {year}")
-        for month in range(3, 4):
+        for month in range(1, 13):
             logging.info(f"Fetching month {month}")
             response = requests.get(
                 f"https://www.ubisoft.com/_next/data/{calendar_page_id}/en-us/esports/rainbow-six/siege/calendar/{year}-{month:02d}.json"
@@ -113,42 +94,38 @@ def main():
     match_file.close()
     logging.info("End of fetch process")
 
-    creds = get_credentials()
-    try:
-        service = build("calendar", "v3", credentials=creds)
-        calendar_list = service.calendarList().list().execute()
+    if len(matches_to_add) > 0:
+        service = get_google_service()
 
-        calendar_id = None
-        if not calendar_list["items"]:
-            calendar_id = create_r6_calendar(service)
-        else:
-            for calendar in calendar_list["items"]:
-                if calendar["id"] == CALENDAR_ID:
-                    calendar_id = calendar["id"]
-                    break
-
-            if not calendar_id:
-                calendar_id = create_r6_calendar(service)
+        # check if calendar exists
+        calendar = service.calendars().get(calendarId=CALENDAR_ID).execute()
+        if not calendar:
+            err_msg = f"Calendar {CALENDAR_ID} does not exist"
+            logging.error(err_msg)
+            raise Exception(err_msg)
 
         for match in matches_to_add:
-            match_event = {
-                "summary": match.summary,
-                "start": {
-                    "dateTime": match.start_time.isoformat(),
-                    "timeZone": "Europe/Rome",
-                },
-                "end": {
-                    "dateTime": match.end_time.isoformat(),
-                    "timeZone": "Europe/Rome",
-                },
-            }
+            try:
+                match_event = {
+                    "summary": match.summary,
+                    "start": {
+                        "dateTime": match.start_time.isoformat(),
+                        "timeZone": "Europe/Rome",
+                    },
+                    "end": {
+                        "dateTime": match.end_time.isoformat(),
+                        "timeZone": "Europe/Rome",
+                    },
+                }
 
-            service.events().insert(calendarId=calendar_id, body=match_event).execute()
-            logging.info(f"Added event {match}")
-    except HttpError as error:
-        logging.error(f"Error adding event: {error}")
+                service.events().insert(
+                    calendarId=CALENDAR_ID, body=match_event
+                ).execute()
+                logging.info(f"Added event {match}")
+            except HttpError as error:
+                logging.error(f"Error adding event: {error}")
 
-    logging.info("End process")
+        logging.info("End process")
 
 
 if __name__ == "__main__":
