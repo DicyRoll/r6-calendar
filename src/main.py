@@ -2,9 +2,8 @@ import logging
 import os
 from datetime import datetime
 
-import requests
-from requests import JSONDecodeError
 import dotenv
+import requests
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -55,15 +54,19 @@ def create_r6_calendar(service: Resource) -> str:
 
 def main():
     logging.basicConfig(
-        filename="app.log",
+        filename="/logs/app.log",
         format="[%(asctime)s]\n%(levelname)s: %(message)s",
         level=logging.INFO,
     )
 
     matches_to_add: list[Match] = []
 
-    match_file = open("matches.txt", "r+")
-    match_file_content = match_file.read()
+    if os.path.exists("matches.txt"):
+        match_file = open("matches.txt", "r+")
+        match_file_content = match_file.read()
+    else:
+        match_file = open("matches.txt", "a")
+        match_file_content = ""
 
     logging.info("Begin process")
     logging.info("Begin fetch procedure")
