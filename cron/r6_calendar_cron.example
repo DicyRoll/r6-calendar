@@ -1,0 +1,1 @@
+* */8 * * * python /root/r6-calendar/main.py >> /root/r6-calendar/logs/cron.log 2>&1
