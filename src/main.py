@@ -13,6 +13,9 @@ from googleapiclient.errors import HttpError
 
 from match import Match
 
+# set working directory
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 dotenv.load_dotenv()
 
 SCOPE = [os.environ.get("SCOPE")]
