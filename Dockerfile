@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # schedule script in crontab
 WORKDIR /etc/cron.d
 
-COPY ./crontab ./
-RUN crontab crontab
+COPY ./cron/r6_calendar_cron ./
+RUN crontab r6_calendar_cron
 
 CMD ["crond", "-f"]
