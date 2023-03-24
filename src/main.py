@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from datetime import datetime
 
 import dotenv
@@ -9,6 +10,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import Resource, build
 from googleapiclient.errors import HttpError
+from requests import JSONDecodeError
 
 from match import Match
 
@@ -70,13 +72,20 @@ def main():
 
     logging.info("Begin process")
     logging.info("Begin fetch procedure")
-    for year in range(2020, datetime.now().year + 1):  # 2020
-        logging.info(f"Fetching year {year}")
-        for month in range(1, 13):
-            logging.info(f"Fetching month {month}")
 
+    calendar_page = requests.get(
+        "https://www.ubisoft.com/en-us/esports/rainbow-six/siege/calendar"
+    )
+    calendar_page_id = re.findall(
+        '(?<="buildId":")([a-zA-Z0-9_]+)(?=")', calendar_page.text
+    ).pop()
+
+    for year in range(2023, datetime.now().year + 1):  # 2020
+        logging.info(f"Fetching year {year}")
+        for month in range(3, 4):
+            logging.info(f"Fetching month {month}")
             response = requests.get(
-                f"https://www.ubisoft.com/_next/data/JjLqCXwsalIA9VRj0ZW6W/en-us/esports/rainbow-six/siege/calendar/{year}-{month:02d}.json"
+                f"https://www.ubisoft.com/_next/data/{calendar_page_id}/en-us/esports/rainbow-six/siege/calendar/{year}-{month:02d}.json"
             )
 
             try:
