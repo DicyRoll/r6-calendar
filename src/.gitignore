@@ -4,6 +4,3 @@ __pycache__
 matches.txt
 credentials.json
 token.json
-
-app.log
-cron.log
