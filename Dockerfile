@@ -1,11 +1,16 @@
 FROM python:3.11-alpine
 
-# install pip dependencies
-WORKDIR /tmp
-COPY ./src/requirements.txt ./
+COPY ./src ./app/r6-calendar
+WORKDIR /app/r6-calendar
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk update
+RUN apk add curl
+
+# install poetry
+RUN export POETRY_HOME=/ && curl -sSL https://install.python-poetry.org | python3 -
+
+# install dependencies
+RUN poetry install --only main
 
 # schedule script in crontab
 WORKDIR /etc/cron.d
