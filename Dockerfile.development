@@ -1,12 +1,8 @@
-FROM python:3.11-alpine
+FROM python:3.11.4-alpine
 
-# install pip dependencies
-WORKDIR /tmp
-COPY ./src/requirements.txt ./
-
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# install git
+# install sys dependencies
 RUN apk update
-RUN apk add git
+RUN apk add git curl openssh
+
+# install poetry
+RUN export POETRY_HOME=/ && curl -sSL https://install.python-poetry.org | python3 -
