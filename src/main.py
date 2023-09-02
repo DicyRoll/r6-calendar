@@ -58,7 +58,7 @@ def main():
         "https://www.ubisoft.com/en-us/esports/rainbow-six/siege/calendar"
     )
     calendar_page_id = re.findall(
-        '(?<="buildId":")([a-zA-Z0-9_]+)(?=")', calendar_page.text
+        '(?<="buildId":")([a-zA-Z0-9_-]+)(?=")', calendar_page.text
     ).pop()
 
     for year in range(2020, datetime.now().year + 1):
