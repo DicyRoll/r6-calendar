@@ -70,7 +70,7 @@ def main():
             )
 
             try:
-                data = response.json()["pageProps"]["page"]
+                data = response.json()["pageProps"]["pageData"]
 
                 for match_element in data["matches"]:
                     match = Match(
