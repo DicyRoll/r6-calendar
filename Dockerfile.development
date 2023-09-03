@@ -1,8 +1,3 @@
-FROM python:3.11.4-alpine
+FROM python:3.11
 
-# install sys dependencies
-RUN apk update
-RUN apk add git curl openssh
-
-# install poetry
-RUN export POETRY_HOME=/ && curl -sSL https://install.python-poetry.org | python3 -
+RUN export POETRY_HOME=/ && curl -sSL https://install.python-poetry.org | python3 - --version = 1.6.1
