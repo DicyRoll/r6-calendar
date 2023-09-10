@@ -15,8 +15,6 @@ RUN ${POETRY_HOME}/bin/poetry install --only main
 RUN apt update && apt install -y cron
 
 # setup crontab
-RUN touch /app/r6-calendar/logs/cron.log
-
 WORKDIR /etc/cron.d
 
 COPY ./cron/r6_calendar_cron ./
@@ -24,4 +22,5 @@ COPY ./cron/r6_calendar_cron ./
 RUN chmod 0644 r6_calendar_cron
 RUN crontab r6_calendar_cron
 
-CMD cron && tail -f /app/r6-calendar/logs/cron.log
+ENV CRON_LOGS=/app/r6-calendar/logs/cron.log
+CMD cron && ([ -f ${CRON_LOGS} ] || touch ${CRON_LOGS}; tail -f ${CRON_LOGS})
