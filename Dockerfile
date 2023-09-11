@@ -14,8 +14,9 @@ RUN wget -O /tmp/install-poetry.py https://raw.githubusercontent.com/python-poet
 # install dependencies
 RUN ${POETRY_HOME}/bin/poetry install --only main
 
-# schedule script in crontab
-RUN apt update && apt install -y cron
+# install cron and tzdata, and setup timezone
+RUN apt update && apt install -y cron tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # setup crontab
 WORKDIR /etc/cron.d
