@@ -9,7 +9,7 @@ ENV CRON_LOGS=/app/r6-calendar/logs/cron.log
 RUN apt update && apt install -y cron wget tzdata && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-COPY ./src ./app/r6-calendar
+COPY ./src/pyproject.toml ./src/poetry.lock /app/r6-calendar/
 WORKDIR /app/r6-calendar
 
 # install poetry
