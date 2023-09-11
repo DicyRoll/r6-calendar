@@ -1,1 +1,1 @@
-0 0 * * * $POETRY_BIN run python /app/r6-calendar/main.py >> /app/r6-calendar/logs/cron.log 2>&1
+0 0 * * * /opt/poetry/bin/poetry run python /app/r6-calendar/main.py >> /app/r6-calendar/logs/cron.log 2>&1
