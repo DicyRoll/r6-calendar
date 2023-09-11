@@ -4,4 +4,4 @@ services:
     container_name: r6-calendar
     tty: true
     volumes:
-      - ./src/logs:/app/r6-calendar/logs
+      - ./src:/app/r6-calendar
