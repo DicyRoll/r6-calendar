@@ -1,21 +1,25 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
+
+ENV TZ=Europe/Rome
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_BIN=/opt/poetry/bin/poetry
+ENV CRON_LOGS=/app/r6-calendar/logs/cron.log
+
+# install cron and tzdata, and setup timezone
+RUN apt update && apt install -y cron wget tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY ./src ./app/r6-calendar
 WORKDIR /app/r6-calendar
 
-RUN apk update
-RUN apk add curl
-
 # install poetry
-RUN export POETRY_HOME=/ && curl -sSL https://install.python-poetry.org | python3 -
+RUN wget -O /tmp/install-poetry.py https://raw.githubusercontent.com/python-poetry/install.python-poetry.org/main/install-poetry.py && \
+    python3 /tmp/install-poetry.py --version 1.6.1 && \
+    ${POETRY_HOME}/bin/poetry install --only main
 
-# install dependencies
-RUN poetry install --only main
-
-# schedule script in crontab
+# setup crontab
 WORKDIR /etc/cron.d
-
 COPY ./cron/r6_calendar_cron ./
-RUN crontab r6_calendar_cron
+RUN chmod 0644 r6_calendar_cron && crontab r6_calendar_cron
 
-CMD ["crond", "-f"]
+CMD cron && ([ -f ${CRON_LOGS} ] || touch ${CRON_LOGS}; tail -f ${CRON_LOGS})

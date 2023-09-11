@@ -13,7 +13,7 @@ class Match:
         self.id = self.__get_id_hash()
 
     def __str__(self) -> str:
-        return f"{self.id} {self.competition} {self.teams[0]} {self.teams[1]}"
+        return f"{self.id} {self.competition} {self.teams[0]} {self.teams[1]} {self.start_time} {self.end_time}"
 
     def __get_id_hash(self) -> str:
         match_str = (
