@@ -1,4 +1,5 @@
 # Rainbow 6 Siege Esports Google Calendar
+
 This Python script updates a Google Calendar with upcoming Rainbow 6 Siege esports matches, which are also available on the [official Ubisoft calendar site](https://www.ubisoft.com/en-us/esports/rainbow-six/siege/calendar).
 
 ## Adding the Calendar to your Google Account
@@ -9,12 +10,13 @@ The calendar is currently updated 3 times a day.
 
 ---
 
-## Requirements
+## Dev Requirements
 
 - Docker
 - A Google Cloud Platform project with the Calendar API enabled and a service account set up.
 
-## Setup
+### Setup
+
 1. Clone this repository to your local machine.
 2. Open the repository in Visual Studio Code with the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed.
 3. Choose "Reopen in Container" in the prompt that appears.
