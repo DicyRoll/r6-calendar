@@ -3,5 +3,6 @@ services:
     build: .
     container_name: r6-calendar
     tty: true
+    restart: unless-stopped
     volumes:
       - ./src:/app/r6-calendar
