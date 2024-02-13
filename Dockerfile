@@ -14,7 +14,7 @@ WORKDIR /app/r6-calendar
 
 # install poetry
 RUN wget -O /tmp/install-poetry.py https://raw.githubusercontent.com/python-poetry/install.python-poetry.org/main/install-poetry.py && \
-    python3 /tmp/install-poetry.py --version 1.6.1 && \
+    python3 /tmp/install-poetry.py --version 1.7.1 && \
     ${POETRY_HOME}/bin/poetry install --only main
 
 # setup crontab
